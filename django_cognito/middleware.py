@@ -1,7 +1,7 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import SimpleLazyObject
 
-from .auth import *
+from django_cognito.auth import *
 
 
 class AuthenticationMiddleware(MiddlewareMixin):

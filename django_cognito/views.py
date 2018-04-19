@@ -5,7 +5,7 @@ import requests
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-from .auth import (
+from django_cognito.auth import (
     clear_session_user,
     _create_session_cognito_state,
     COGNITO_STATE,
