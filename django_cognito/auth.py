@@ -1,3 +1,4 @@
+from importlib import import_module
 import requests
 from uuid import uuid4
 
@@ -38,7 +39,20 @@ class CognitoGuest(CognitoUser):
         return False
 
 
-def clear_session_user(session):
+class BaseCognitoListener(object):
+
+    def __init__(self, request):
+        self.request = request
+
+    def OnLogin(self):
+        pass
+
+    def OnLogout(self):
+        pass
+
+
+def clear_session_user(request):
+    session = request.session
     if USER_EMAIL in session:
         del session[USER_EMAIL]
     if USER_NAME in session:
@@ -47,6 +61,7 @@ def clear_session_user(session):
         del session[USER_USERNAME]
     if USER_UUID in session:
         del session[USER_UUID]
+    _notify_cognito_listeners(request, 'OnLogout')
 
 
 def _create_session_cognito_state(request):
@@ -78,10 +93,22 @@ def _decode_jwt_payload(token):
     return None
 
 
-def set_session_user(session, claims):
+def _notify_cognito_listeners(request, event_name):
+    for listener_entry in getattr(settings, 'COGNITO_LISTENERS', []):
+        parts = listener_entry.split('.')
+        module_path = '.'.join(parts[:-1])
+        module = import_module(module_path)
+        listener_class_name = parts[-1]
+        listener_class = getattr(module, listener_class_name)
+        getattr(listener_class(request), event_name)()
+
+
+def set_session_user(request, claims):
+    session = request.session
     session[USER_EMAIL] = claims.get('email')
     session[USER_NAME] = claims.get('name')
     session[USER_USERNAME] = claims.get('cognito:username')
     session[USER_UUID] = claims['sub']
+    _notify_cognito_listeners(request, 'OnLogin')
 
 

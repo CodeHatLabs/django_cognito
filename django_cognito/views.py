@@ -50,12 +50,12 @@ def login_callback(request):
         return login(request)
     if COGNITO_STATE in session:
         del session[COGNITO_STATE]
-    set_session_user(session, claims)
+    set_session_user(request, claims)
     return HttpResponseRedirect(settings.COGNITO_LOGIN_SUCCESS_REDIRECT)
 
 
 def logout(request):
-    clear_session_user(request.session)
+    clear_session_user(request)
     return HttpResponseRedirect(settings.COGNITO_LOGOUT_URI)
 
 
