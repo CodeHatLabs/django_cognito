@@ -18,7 +18,7 @@ USER_UUID = 'user_uuid'
 class CognitoUser(object):
 
     def __init__(self, email, name, username, uuid):
-        self.email = email
+        self.email = email.lower()
         self.name = name
         self.username = username
         self.uuid = uuid
@@ -105,7 +105,7 @@ def _notify_cognito_listeners(request, event_name):
 
 def set_session_user(request, claims):
     session = request.session
-    session[USER_EMAIL] = claims.get('email')
+    session[USER_EMAIL] = claims.get('email').lower()
     session[USER_NAME] = claims.get('name')
     session[USER_USERNAME] = claims.get('cognito:username')
     session[USER_UUID] = claims['sub']
