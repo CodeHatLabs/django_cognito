@@ -14,6 +14,7 @@ setup(
     keywords='python',
     zip_safe=False,
     install_requires=[
+        'requests',
         'boto3',
         'python-jose',
     ],
